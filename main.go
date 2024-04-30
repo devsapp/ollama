@@ -37,20 +37,14 @@ func main() {
 	fmt.Println("start gin server")
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		c.String(200, "Hello, World!")
-	})
-
 	r.POST("/initialize", func(c *gin.Context) {
 		startOllamaModel()
 		c.String(200, "start model finished")
 	})
 
-	r.POST("/chat", func(c *gin.Context) {
-		var input inputPrompt
-		if err := c.ShouldBindJSON(&input); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
+	r.GET("/ping", func(c *gin.Context) {
+		input := inputPrompt{
+			Prompt: "who are you",
 		}
 		err := doChat(input)
 		if err != nil {
@@ -88,6 +82,14 @@ func startOllamaModel() {
 	if err != nil {
 		panic(err)
 	}
+
+	cmd = exec.Command("ollama", "run", MODEL)
+	out, err = cmd.Output()
+	if err != nil {
+		fmt.Println("err is", err)
+		panic(err)
+	}
+
 	println(string(out))
 }
 
