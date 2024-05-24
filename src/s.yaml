@@ -1,0 +1,51 @@
+edition: 3.0.0
+name:  
+access: {{ access }}
+vars:
+  region: {{ region }}
+  name: {{ name }}
+  role: {{ roleArn }}
+  gpuInstanceType: {{ gpuInstanceType }}
+  gpuMemorySize: {{ gpuMemorySize }}
+  memorySize: {{ memorySize }}
+  cpu: {{ cpu }}
+  modelName: {{ modelName }}
+resources:
+  ollama:
+    component: fc3
+    props:
+      region: ${vars.region}
+      handler: index.handler
+      functionName: ${vars.name}
+      role: ${vars.role}
+      description: ''
+      timeout: 60
+      diskSize: 10240
+      internetAccess: true
+      instanceLifecycleConfig:
+        initializer:
+          handler: 'true'
+          timeout: 300
+      gpuConfig:
+        gpuMemorySize: ${vars.gpuMemorySize}
+        gpuType: ${vars.gpuInstanceType}
+      runtime: custom-container
+      cpu: ${vars.cpu}
+      customContainerConfig:
+        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/ollama:qwen-v1
+        port: 8000
+      instanceConcurrency: 1
+      memorySize: ${vars.memorySize}
+      environmentVariables:
+        MODEL: ${vars.modelName}
+      triggers:
+        - triggerConfig:
+            methods:
+              - GET
+              - POST
+            authType: anonymous
+            disableURLInternet: false
+          triggerName: defaultTrigger
+          description: ''
+          qualifier: LATEST
+          triggerType: http
