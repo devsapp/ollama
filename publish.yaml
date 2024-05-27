@@ -1,7 +1,7 @@
 Edition: 3.0.0
 Type: Project
 Name: ollama
-Version: "0.0.3"
+Version: dev
 Provider:
   - 阿里云
 Description: ollama
@@ -61,12 +61,13 @@ Parameters:
     modelName:
       title: 模型名称
       type: string
-      default: qwen_0-5b
-      description: LLM模型
+      default: 多个模型集成
+      description: 内置的模型选择。选择“多个模型”时，会同时包含通义千问 0.5B、7B 以及 llama3 8B
       enum:
-        - qwen_14b
-        - qwen_7b
-        - qwen_0-5b
+        - 多个模型集成
+        - 通义千问 0.5B 
+        - 通义千问 7B
+        - llama3 8B
     gpuInstanceType:
       title: GPU实例类型
       type: string

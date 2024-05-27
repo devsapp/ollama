@@ -9,7 +9,9 @@ vars:
   gpuMemorySize: {{ gpuMemorySize }}
   memorySize: {{ memorySize }}
   cpu: {{ cpu }}
-  modelName: {{ modelName }}
+  modelName: "{{ if type === '通义千问 0.5B' }}qwen:0.5b{{ else if type === '通义千问 7B'}}qwen:7b{{else if type === 'llama3 8B'}}llama3:8b{{ else }}qwen:7b{{/if}}"
+  image: "registry.${vars.region}.aliyuncs.com/aliyun-fc/ollama:{{ if type === '通义千问 0.5B' }}qwen-0.5b-v1{{ else if type === '通义千问 7B'}}qwen-7b-v1{{else if type === 'llama3 8B'}}llama3-8b-v1{{ else }}multi-v1{{/if}}"
+
 resources:
   ollama:
     component: fc3
@@ -32,7 +34,7 @@ resources:
       runtime: custom-container
       cpu: ${vars.cpu}
       customContainerConfig:
-        image: registry.${vars.region}.aliyuncs.com/aliyun-fc/ollama:qwen-v1
+        image: "${vars.image}"
         port: 8000
       instanceConcurrency: 1
       memorySize: ${vars.memorySize}
