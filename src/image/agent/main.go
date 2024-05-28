@@ -61,12 +61,12 @@ func startOllamaService(model string) error {
 	}
 
 	// create model from an existing modelfile
-	log.Printf("Creating model '%s'...\n", model)
-	createArgs := []string{"create", model, "-f", fmt.Sprintf(ModelfileDir, model)}
-	if err = executeCommand(Ollama, createArgs...); err != nil {
-		ollamaCmd.Process.Kill()
-		return err
-	}
+	// log.Printf("Creating model '%s'...\n", model)
+	// createArgs := []string{"create", model, "-f", fmt.Sprintf(ModelfileDir, model)}
+	// if err = executeCommand(Ollama, createArgs...); err != nil {
+	// 	ollamaCmd.Process.Kill()
+	// 	return err
+	// }
 
 	// run model to provide LLM service
 	log.Printf("Running model '%s'...\n", model)

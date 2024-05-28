@@ -1,0 +1,207 @@
+#!/bin/bash
+
+. "$(dirname "$(readlink -f "$0")")/scripts/core.bash"
+
+REGIONS="cn-hangzhou cn-shanghai cn-shenzhen" # 要推送镜像的地域
+DEFAULT_REGION=$(echo $REGIONS | awk '{print $1}') # 默认地域
+
+
+# 镜像基本信息
+NAMESPACE=aliyun-fc
+REPO=ollama
+TAGS="MULTI QWEN_0_5B QWEN_7B LLAMA3_8B" # 镜像类型列表
+
+MULTI_TAG="multi"
+MULTI_VERSIONS="v1"
+
+QWEN_0_5B_TAG="qwen-0.5b"
+QWEN_0_5B_VERSIONS="v1"
+
+QWEN_7B_TAG="qwen-7b"
+QWEN_7B_VERSIONS="v1"
+
+LLAMA3_8B_TAG="llama3-8b"
+LLAMA3_8B_VERSIONS="v1"
+
+
+function image_tag() {
+    local id=$1
+    local version=$2
+    echo "$(eval echo "\$${id}_TAG")-${version}"
+}
+
+function image_tag_latest() {
+    local id=$1
+    local versions=($(eval echo "\$${id}_VERSIONS"))
+    image_tag $id ${versions[-1]}
+}
+
+function image_name() {
+    local tag=$1
+    echo "$NAMESPACE/$REPO:${tag}"
+}
+
+function image_full() {
+    local tag=$1
+    local region=$2
+    echo "registry.$region.aliyuncs.com/$(image_name $tag)"
+}
+
+# ==================== #
+# = 镜像 构建 & 推送 = #
+# ==================== #
+
+function build_image() { ## 构建镜像
+    set_debug_trace
+
+    local image_id=$1 # 参数 1：要构建的镜像 id
+    local version=$2 # 参数 2：要构建的镜像版本
+    local extra_args=""
+    local image="$(image_name $(image_tag "${image_id}" "$version"))"
+    local docker_context="./src/image"
+    local dockerfile="${docker_context}/Dockerfile"
+    local sources=$(find "${docker_context}" -type f)
+    local target="qwen_0_5b"
+
+    case "$image_id" in
+        QWEN_0_5B)
+            target="qwen_0_5b"
+            ;;
+        QWEN_7B)
+            target="qwen_7b"
+            ;;
+        LLAMA3_8B)
+            target="llama3_8b"
+            ;;
+        MULTI)
+            target="multi"
+            ;;
+    esac
+
+    if [ -n "$(need_build_docker $image $sources)" ]; then
+        debug "build image ${image} from ${dockerfile} at ${context} with ${extra_args}"
+
+        DOCKER_BUILDKIT=1 docker build \
+            -f "${dockerfile}" \
+            -t "${image}" \
+            --target "${target}" \
+            --build-arg IMAGE_TAG="$(basename ${image} | cut -f2 -d:)" \
+            ${extra_args} \
+            "${docker_context}"
+    fi
+
+    _RETURN="$image"
+
+    clear_debug_trace
+}
+
+function push_image() { ## 推送镜像
+    set_debug_trace
+
+    local image="$1" # 镜像名
+    local region="$2" # 要推送的地狱
+    local full="registry.${region}.aliyuncs.com/${image}"
+
+    debug "push $image to $region\nimage: ${full}"
+    docker tag "${image}" "${full}" 
+
+    echo -e "\npush image: $full\n"
+    docker push "${full}"
+
+    clear_debug_trace
+}
+
+function init_images() {
+    for id in $TAGS; do
+        versions=($(eval echo "\$${id}_VERSIONS"))
+        id_lower=$(echo $id | tr '[:upper:]' '[:lower:]' )
+        latestVersion=${versions[-1]}
+
+        add_help "build-${id_lower}" "构建 ${id_lower} 最新镜像($latestVersion)"
+        eval "
+        function cmd_build-${id_lower}() {
+            set_debug_trace
+            cmd_build-${id_lower}-${latestVersion}
+            clear_debug_trace
+        }
+        "
+
+        for version in "${versions[@]}"; do
+            add_help "build-${id_lower}-${version}" "构建 ${id_lower} ${version} 镜像"
+            eval "
+            function cmd_build-${id_lower}-${version}() {
+                set_debug_trace
+                build_image ${id} ${version}
+                clear_debug_trace
+            }
+            "
+        done
+
+
+        add_help "push-${id_lower}" "推送 ${id_lower} 镜像到镜像仓库"
+        eval "
+        function cmd_push-${id_lower}() {
+            set_debug_trace
+
+            cmd_build-${id_lower}
+
+            for region in $REGIONS; do
+                push_image $(image_name $(image_tag ${id} ${latestVersion})) \${region}
+            done 
+
+            clear_debug_trace
+        }
+        "
+    done
+
+    for region in $REGIONS; do ## 动态创建推送到地域
+        add_help "push-$region" "推送基础镜像到 $region"
+
+        eval "function cmd_push-$region() { 
+            set_debug_trace
+
+            for image in $TAGS; do
+                # 先构建镜像
+                cmd_build-\$(echo \${image} | tr '[:upper:]' '[:lower:]')
+
+                # 再推送镜像
+                push_image \$(image_name \$(image_tag_latest \$image)) $region
+            done
+
+            clear_debug_trace
+        } 
+        ";
+    done
+}
+
+function cmd_build() { ## 构建所有镜像
+    set_debug_trace
+
+    for id in $TAGS; do
+        id_lower=$(echo $id | tr '[:upper:]' '[:lower:]' )
+        cmd_build-${id_lower}
+    done
+
+    clear_debug_trace
+}
+
+function cmd_push() { ## 推送所有镜像
+    set_debug_trace
+
+    for region in $REGIONS; do
+        cmd_push-$region
+    done
+
+    clear_debug_trace
+}
+
+function cmd_registry() { ## 发布到 registry
+    set_debug_trace
+
+    s registry publish
+
+    clear_debug_trace
+}
+
+
+main $@
