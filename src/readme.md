@@ -2,12 +2,21 @@
 > 注：当前项目为 Serverless Devs 应用，由于应用中会存在需要初始化才可运行的变量（例如应用部署地区、函数名等等），所以**不推荐**直接 Clone 本仓库到本地进行部署或直接复制 s.yaml 使用，**强烈推荐**通过 `s init ${模版名称}` 的方法或应用中心进行初始化，详情可参考[部署 & 体验](#部署--体验) 。
 
 # ollama 帮助文档
+<p align="center" class="flex justify-center">
+    <a href="https://www.serverless-devs.com" class="ml-1">
+    <img src="http://editor.devsapp.cn/icon?package=ollama&type=packageType">
+  </a>
+  <a href="http://www.devsapp.cn/details.html?name=ollama" class="ml-1">
+    <img src="http://editor.devsapp.cn/icon?package=ollama&type=packageVersion">
+  </a>
+  <a href="http://www.devsapp.cn/details.html?name=ollama" class="ml-1">
+    <img src="http://editor.devsapp.cn/icon?package=ollama&type=packageDownload">
+  </a>
+</p>
+
 <description>
 
 通过函数计算开箱即用Ollama，极低成本部署自己的云端LLM服务。
-<p align="center" class="flex justify-center">
-<img src="https://img.alicdn.com/imgextra/i3/O1CN01xCLoWx1qYiUMXnE4S_!!6000000005508-2-tps-225-225.png" title="一个示例图片" width="150"/>
-</p>
 
 </description>
 
@@ -104,26 +113,15 @@ curl "${FunctionEndpoint}/v1/chat/completions" \
   }'
 ```
 API参数说明及更多请参考 https://github.com/ollama/ollama/blob/main/docs/api.md
-### 通过函数计算控制台户进行测试
- - 部署成功后，从资源信息栏，找到对应函数资源，点击函数名称跳转到函数计算控制台，如：<img src="https://img.alicdn.com/imgextra/i3/O1CN012PUSLe1JyTRRp86xL_!!6000000001097-0-tps-852-378.jpg" title="test-case" width="300"/>
 
- - 在测试标签页，输入如下示例测试参数，然后单击“测试函数”，其中modelName需替换为您当前使用的模型名字(`qwen_0_5b`, `qwen_7b`, `qwen_14b`)，如下是一个调用qwen_7b模型的示例
-```
-{
-  "model": "qwen_7b",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are a helpful assistant."
-    },
-    {
-      "role": "user",
-      "content": "How can you help me?"
-    }
-  ]
-}
-```
-<img src="https://img.alicdn.com/imgextra/i2/O1CN01WpE2mT21IeMiMYMU4_!!6000000006962-0-tps-1356-1518.jpg" title="logo" width="300"/>
+
+### 通过 Open WebUI 进行测试
+
+通过应用 [fc-open-webui](https://github.com/devsapp/fc-open-webui) 部署，并配置 ollama 接口为当前应用触发器
+
+应用中心创建地址 https://fcnext.console.aliyun.com/applications/create?template=fc-open-webui
+
+
 
 </usedetail>
 
