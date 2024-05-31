@@ -20,6 +20,10 @@ FROM ollama/ollama:${OLLAMA_VERSION} as download_llama3_8b
 RUN --mount=type=bind,source=/pull_model.sh,target=/pull_model.sh \
     MODEL="llama3:8b" ./pull_model.sh
 
+FROM ollama/ollama:${OLLAMA_VERSION} as download_tinyllama_1b
+RUN --mount=type=bind,source=/pull_model.sh,target=/pull_model.sh \
+    MODEL="tinyllama:1.1b" ./pull_model.sh
+
 
 
 
@@ -39,6 +43,10 @@ FROM ollama_base as qwen_7b
 RUN --mount=type=bind,from=download_qwen_7b,source=/root/.ollama/models,target=/models \
     cp -R /models/* /root/.ollama/models/
 
+FROM ollama_base as tinyllama_1b
+RUN --mount=type=bind,from=download_tinyllama_1b,source=/root/.ollama/models,target=/models \
+    cp -R /models/* /root/.ollama/models/
+
 FROM ollama_base as llama3_8b
 RUN --mount=type=bind,from=download_llama3_8b,source=/root/.ollama/models,target=/models \
     cp -R /models/* /root/.ollama/models/
@@ -49,4 +57,6 @@ RUN --mount=type=bind,from=download_qwen_0_5b,source=/root/.ollama/models,target
 RUN --mount=type=bind,from=download_qwen_7b,source=/root/.ollama/models,target=/models \
     cp -R /models/* /root/.ollama/models/
 RUN --mount=type=bind,from=download_llama3_8b,source=/root/.ollama/models,target=/models \
+    cp -R /models/* /root/.ollama/models/
+RUN --mount=type=bind,from=download_tinyllama_1b,source=/root/.ollama/models,target=/models \
     cp -R /models/* /root/.ollama/models/

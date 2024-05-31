@@ -9,10 +9,10 @@ DEFAULT_REGION=$(echo $REGIONS | awk '{print $1}') # 默认地域
 # 镜像基本信息
 NAMESPACE=aliyun-fc
 REPO=ollama
-TAGS="MULTI QWEN_0_5B QWEN_7B LLAMA3_8B" # 镜像类型列表
+TAGS="MULTI QWEN_0_5B QWEN_7B LLAMA3_8B TINYLLAMA_1B" # 镜像类型列表
 
 MULTI_TAG="multi"
-MULTI_VERSIONS="v1"
+MULTI_VERSIONS="v1 v2"
 
 QWEN_0_5B_TAG="qwen-0.5b"
 QWEN_0_5B_VERSIONS="v1"
@@ -22,6 +22,9 @@ QWEN_7B_VERSIONS="v1"
 
 LLAMA3_8B_TAG="llama3-8b"
 LLAMA3_8B_VERSIONS="v1"
+
+TINYLLAMA_1B_TAG="tinyllama-1b"
+TINYLLAMA_1B_VERSIONS="v1"
 
 
 function image_tag() {
@@ -72,6 +75,9 @@ function build_image() { ## 构建镜像
             ;;
         LLAMA3_8B)
             target="llama3_8b"
+            ;;
+        TINYLLAMA_1B)
+            target="tinyllama_1b"
             ;;
         MULTI)
             target="multi"

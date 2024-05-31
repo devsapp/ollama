@@ -9,8 +9,8 @@ vars:
   gpuMemorySize: {{ gpuMemorySize }}
   memorySize: {{ memorySize }}
   cpu: {{ cpu }}
-  modelName: "{{ if type === '通义千问 0.5B' }}qwen:0.5b{{ else if type === '通义千问 7B'}}qwen:7b{{else if type === 'llama3 8B'}}llama3:8b{{ else }}qwen:7b{{/if}}"
-  image: "registry.${vars.region}.aliyuncs.com/aliyun-fc/ollama:{{ if type === '通义千问 0.5B' }}qwen-0.5b-v1{{ else if type === '通义千问 7B'}}qwen-7b-v1{{else if type === 'llama3 8B'}}llama3-8b-v1{{ else }}multi-v1{{/if}}"
+  modelName: "{{ if modelName === '通义千问 0.5B' }}qwen:0.5b{{ else if modelName === '通义千问 7B'}}qwen:7b{{else if modelName === 'llama3 8B'}}llama3:8b{{ else }}qwen:0.5b{{/if}}"
+  image: "registry.${vars.region}.aliyuncs.com/aliyun-fc/ollama:{{ if modelName === '通义千问 0.5B' }}qwen-0.5b-v1{{ else if modelName === '通义千问 7B'}}qwen-7b-v1{{else if modelName === 'llama3 8B'}}llama3-8b-v1{{ else }}multi-v1{{/if}}"
 
 resources:
   ollama:
