@@ -94,12 +94,12 @@ Ollama 以其卓越的性能和易用性在业界获得了广泛认可，Ollama 
 <usedetail id="flushContent">
 
 ### 通过API进行调用
-我们推荐以openAI的API范式进行函数调用，其中model需替换为您当前使用的模型名字(`qwen_0_5b`, `qwen_7b`, `qwen_14b`)，如下是一个调用qwen_7b模型的示例：
+我们推荐以openAI的API范式进行函数调用，其中model需替换为您当前使用的模型名字(`qwen:0.5b`, `qwen:7b`, `qwen:14b`)，如下是一个调用qwen_7b模型的示例：
 ```
 curl "${FunctionEndpoint}/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "qwen_7b",
+    "model": "qwen:7b",
     "messages": [
       {
         "role": "system",
